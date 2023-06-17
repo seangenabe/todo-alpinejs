@@ -1,1 +1,49 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.2/cdn.js" integrity="sha512-O+ameuymZr7auqNl/HvUtOOzIMFEB9wwMLAYe3k/clA44a2oGtV+6Xh7+lFiztz0gBN+t27z23xxQQLG67vv9w==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" referrerpolicy="no-referrer" />
+
+<main
+  class="mx-auto max-w-xl"
+  x-data="{
+    notes: [{ text: '', id: 0, checked: false, editing: true }],
+    filter: 'all'
+  }"
+  x-effect="
+    if (notes.length > 0 && notes.slice(-1)[0].text !== '')
+      notes.push({ text: '', id: Date.now(), checked: false, editing: true })
+    if (notes.length === 0)
+      notes.push({ text: '', id: Date.now(), checked: false, editing: true })
+  "
+>
+  <h1 class="text-xl p-4">Todo app</h1>
+
+  <nav class="py-4">
+    <button type="button" @click="filter = 'all'" x-bind:class="'px-4 py-2 ' + (filter === 'all' ? 'font-bold' : '')">All</button>
+    <button type="button" @click="filter = 'open'" x-bind:class="'px-4 py-2 ' + (filter === 'open' ? 'font-bold' : '')">Open</button>
+    <button type="button" @click="filter = 'closed'" x-bind:class="'px-4 py-2 ' + (filter === 'closed' ? 'font-bold' : '')">Closed</button>
+  </nav>
+
+  <div class="flex flex-col">
+
+    <template x-for="(note, index) in notes" :key="note.id">
+      <article x-data="note" x-show="filter === 'all' || ((filter === 'closed') === checked)">
+        <label class="flex gap-2 border-2 border-gray px-4 py-2" x-init="$watch('editing', value => {
+              if (value) {
+                const textInput = $el.querySelector('.textInput');
+                await $nextTick();
+                textInput.select();
+                textInput.focus();
+              }
+            })">
+          <input type="checkbox" x-model="checked" x-bind:disabled="text === ''" aria-label="Item done?">
+          <span>&nbsp;</span>
+          <span x-text="text" x-show="!editing" x-bind:class="'px-2 py-1 ' + (checked ? 'line-through' : '')"></span>
+          <button type="button" x-show="!editing" @click.stop="editing = true" class="px-2 py-1" aria-label="Edit">✏️</button>
+          <input x-model="text" x-show="editing" @blur="if (text !== '') editing = false" class="textInput px-2 py-1 flex-1">
+          <div class="flex-1" x-show="text !== '' && !editing"></div>
+          <button type="button" x-show="text !== '' && !editing" aria-label="Delete" @click.stop="notes.splice(index, 1)">🗑️</button>
+        </label>
+      </article>
+    </template>
+  </div>
+
+</main>
