@@ -36,21 +36,39 @@
   <div class="flex flex-col">
 
     <template x-for="(note, index) in notes" :key="note.id">
-      <article x-data="note" x-show="filter === 'all' || ((filter === 'closed') === checked)">
+      <article x-data="note" x-show="filter === 'all' || ((filter === 'closed') === checked)" x-bind:class="(index === notes.length - 1) ? 'lastItem' : ''">
         <label class="flex gap-2 border-2 border-gray px-4 py-2" x-init="$watch('editing', value => {
               if (value) {
                 const textInput = $el.querySelector('.textInput');
+                $nextTick(() => {
+                  textInput.select();
+                  textInput.focus();
+                });
+                // Fix for Chrome
                 setTimeout(() => {
                   textInput.select();
                   textInput.focus();
-                }, 1);
+                }, 30);
               }
             })">
           <input type="checkbox" x-model="checked" x-bind:disabled="text === ''" aria-label="Item done?">
           <span>&nbsp;</span>
           <span x-text="text" x-show="!editing" x-bind:class="'px-2 py-1 ' + (checked ? 'line-through' : '')"></span>
           <button type="button" x-show="!editing" @click.stop="editing = true" class="px-2 py-1" aria-label="Edit">✏️</button>
-          <input x-model="text" x-show="editing" @blur="if (text !== '') editing = false" class="textInput px-2 py-1 flex-1">
+          <input type="text" x-model="text" x-show="editing"
+            @blur="if (text !== '') editing = false"
+            @keyup.stop="if ($event.key === 'Enter' && text !== '') {
+              editing = false
+              $nextTick(() => {
+                document.querySelector('.lastItem .textInput')?.focus();
+              });
+              // Fix for Chrome
+              setTimeout(() => {
+                document.querySelector('.lastItem .textInput')?.focus();
+              }, 30);
+            }"
+            class="textInput px-2 py-1 flex-1"
+          >
           <div class="flex-1" x-show="text !== '' && !editing"></div>
           <button type="button" x-show="text !== '' && !editing" aria-label="Delete" @click.stop="notes.splice(index, 1)">🗑️</button>
         </label>
