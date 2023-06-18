@@ -5,13 +5,23 @@
   class="mx-auto max-w-xl"
   x-data="{
     notes: [{ text: '', id: 0, checked: false, editing: true }],
-    filter: 'all'
+    filter: 'all',
+    init() {
+      const savedNotes = window.localStorage.getItem('notes');
+      if (savedNotes != null)
+        this.notes = JSON.parse(savedNotes);
+      const savedFilter = window.localStorage.getItem('filter');
+      if (savedFilter != null)
+        this.filter = JSON.parse(savedFilter);
+    }
   }"
   x-effect="
     if (notes.length > 0 && notes.slice(-1)[0].text !== '')
       notes.push({ text: '', id: Date.now(), checked: false, editing: true })
     if (notes.length === 0)
       notes.push({ text: '', id: Date.now(), checked: false, editing: true })
+    window.localStorage.setItem('notes', JSON.stringify(notes))
+    window.localStorage.setItem('filter', JSON.stringify(filter))
   "
 >
   <h1 class="text-xl p-4">Todo app</h1>
@@ -29,9 +39,10 @@
         <label class="flex gap-2 border-2 border-gray px-4 py-2" x-init="$watch('editing', value => {
               if (value) {
                 const textInput = $el.querySelector('.textInput');
-                await $nextTick();
-                textInput.select();
-                textInput.focus();
+                $nextTick(() => {
+                  textInput.select();
+                  textInput.focus();
+                });
               }
             })">
           <input type="checkbox" x-model="checked" x-bind:disabled="text === ''" aria-label="Item done?">
