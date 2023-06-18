@@ -1,3 +1,4 @@
+<title>Todo app</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.2/cdn.js" integrity="sha512-O+ameuymZr7auqNl/HvUtOOzIMFEB9wwMLAYe3k/clA44a2oGtV+6Xh7+lFiztz0gBN+t27z23xxQQLG67vv9w==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" referrerpolicy="no-referrer" />
 
@@ -39,10 +40,10 @@
         <label class="flex gap-2 border-2 border-gray px-4 py-2" x-init="$watch('editing', value => {
               if (value) {
                 const textInput = $el.querySelector('.textInput');
-                $nextTick(() => {
+                setTimeout(() => {
                   textInput.select();
                   textInput.focus();
-                });
+                }, 1);
               }
             })">
           <input type="checkbox" x-model="checked" x-bind:disabled="text === ''" aria-label="Item done?">
